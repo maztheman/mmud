@@ -1,0 +1,20 @@
+# Docs at https://docs.conan.io/en/latest/reference/conanfile_txt.html
+[requires]
+catch2/2.13.9
+cli11/2.2.0
+spdlog/1.10.0
+glad/0.1.36
+glfw/3.3.8
+fmt/9.1.0
+imgui/cci.20220621+1.88.docking
+sol2/3.3.0
+yaml-cpp/0.7.0
+
+[generators]
+cmake
+
+[imports]
+./res/bindings, imgui_impl_glfw.cpp -> bindings
+./res/bindings, imgui_impl_opengl3.cpp -> bindings
+./res/bindings, imgui_impl_glfw.h -> bindings
+./res/bindings, imgui_impl_opengl3.h -> bindings

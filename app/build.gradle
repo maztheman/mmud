@@ -13,14 +13,31 @@ android {
         targetSdk 32
         versionCode 1
         versionName "1.0"
-
+        ndkVersion "23.1.7779620"
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++20 -lGLESv3"
+                arguments '-DANDROID_STL=c++_static'
+                version = "3.22.1"
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version = "3.22.1"
         }
     }
     compileOptions {
@@ -33,7 +50,34 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    sourceSets {
+        main {
+            // We're using SDLActivity from SDL sources, not copying that to our source tree
+            //java.srcDirs += ['src/main/cpp/deps/SDL/android-project/app/src/main/java']
+            // Instead of copying data files from the native project, we just add its data
+            // as another asset directory
+            assets.srcDirs += ['src/main/cpp/data']
+        }
+    }
 }
+
+/*
+task conanInstall {
+    def buildDir = new File("src/main/cpp/cmake")
+    buildDir.mkdirs()
+    def cmmd = "/usr/bin/conan install ../conanfile.txt --profile android_21_arm_clang --build missing"
+    print(">> ${cmmd} \n")
+
+    def sout = new StringBuilder(), serr = new StringBuilder()
+    def proc = cmmd.execute(null, buildDir)
+    proc.consumeProcessOutput(sout, serr)
+    proc.waitFor()
+    println "$sout $serr"
+    if (proc.exitValue() != 0) {
+        throw new Exception("out> $sout err> $serr" + "\nCommand: ${cmmd}")
+    }
+}*/
 
 dependencies {
 
@@ -43,6 +87,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'

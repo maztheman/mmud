@@ -1,0 +1,13 @@
+include(default)
+target_host=aarch64-linux-android
+api_level=21
+[settings]
+build_type=Debug
+arch=armv8
+compiler=clang
+compiler.version=12
+compiler.cppstd=20
+compiler.libcxx=libc++
+os=Android
+os.api_level=$api_level
+
