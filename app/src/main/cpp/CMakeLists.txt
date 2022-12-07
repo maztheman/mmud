@@ -4,7 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
     GLFM
     GIT_REPOSITORY https://github.com/maztheman/glfm.git
-    GIT_TAG v9
+    GIT_TAG v11
 )
 FetchContent_Declare(
     ImGui

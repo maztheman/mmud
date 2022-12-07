@@ -17,6 +17,6 @@ SET(SRCS
 #
 
 target_sources(mud_library PRIVATE ${SRCS})
-target_compile_definitions(mud_library PRIVATE IMGUI_IMPL_OPENGL_ES3)
-target_include_directories(mud_library PRIVATE ${imgui_SOURCE_DIR})
+target_compile_definitions(mud_library PRIVATE IMGUI_IMPL_OPENGL_ES3 IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+target_include_directories(mud_library PRIVATE ${imgui_SOURCE_DIR} ${ANDROID_NDK}/sources/android/native_app_glue/)
 target_link_libraries(mud_library PRIVATE glfm)
