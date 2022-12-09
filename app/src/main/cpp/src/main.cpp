@@ -66,6 +66,20 @@ void printFolder()
     }
 }
 
+ImFont* loadFont(ImGuiIO& io, const char* fontFile, float fontSize)
+{
+    if (FILE* fptest = fopen(fontFile, "rb"); fptest)
+    {
+        fseek(fptest, 0, SEEK_END);
+        size_t sz = ftell(fptest);
+        fseek(fptest, 0, SEEK_SET);
+        char* data = static_cast<char*>(malloc(sz));
+        fread(data, 1, sz, fptest);
+        fclose(fptest);
+        return io.Fonts->AddFontFromMemoryTTF(data, sz, fontSize);
+    }
+    return nullptr;
+}
 
 void android_main(struct android_app* app)
 {
@@ -94,17 +108,12 @@ void android_main(struct android_app* app)
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    if (FILE* fptest = fopen("Roboto-Medium.ttf", "rb"); fptest)
+   ImFont* defaultFont = loadFont(io, "Roboto-Medium.ttf", 32.0f);
+   ImFont* monoFont = loadFont(io, "RobotoMono-Medium.ttf", 32.0f);
+    if (defaultFont)
     {
-        fseek(fptest, 0, SEEK_END);
-        size_t sz = ftell(fptest);
-        fseek(fptest, 0, SEEK_SET);
-        char* data = static_cast<char*>(malloc(sz));
-        fread(data, 1, sz, fptest);
-        fclose(fptest);
-        io.Fonts->AddFontFromMemoryTTF(data, sz, 32.0f);
+        io.FontDefault = defaultFont;
     }
-
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
@@ -131,6 +140,9 @@ void android_main(struct android_app* app)
     glfmGetDisplayChromeInsets(display, &safeTop, &safeRight, &safeBottom, &safeLeft);
 
     style.DisplaySafeAreaPadding.y = (float)safeTop;
+
+    glfmSetKeyboardVisible(display, true);
+
 
     while(!glfmAppShouldClose())
     {
@@ -220,9 +232,11 @@ void android_main(struct android_app* app)
 
         if (ImGui::Begin("Hello, world!"))
         {
+            ImGui::PushFont(monoFont);
             ImGui::Text("This is a TEST WINDOW!");
              ImGui::Text("This is a TEST WINDOW!");
             ImGui::Text("This is a TEST WINDOW!");
+            ImGui::PopFont();
             ImGui::End();
         }
 
@@ -240,6 +254,10 @@ void android_main(struct android_app* app)
 
         glfmSwapBuffers(display);
 
+        if (io.WantTextInput)
+        {
+            glfmSetKeyboardVisible(display, true);
+        }
     }
 }
 
