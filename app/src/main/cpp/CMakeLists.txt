@@ -4,12 +4,12 @@ include(FetchContent)
 FetchContent_Declare(
     GLFM
     GIT_REPOSITORY https://github.com/maztheman/glfm.git
-    GIT_TAG v11
+    GIT_TAG v13
 )
 FetchContent_Declare(
     ImGui
     GIT_REPOSITORY https://github.com/maztheman/imgui.git
-    GIT_TAG glfm-v6.2
+    GIT_TAG glfm-v7.4
 )
 FetchContent_Declare(
     yaml-cpp
@@ -26,8 +26,22 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/ThePhD/sol2.git
     GIT_TAG v3.3.0
 )
-FetchContent_MakeAvailable(GLFM ImGui yaml-cpp fmtlib sol)
+FetchContent_Declare(
+    lua
+    GIT_REPOSITORY https://github.com/lua/lua.git
+    GIT_TAG v5.4.4
+)
+FetchContent_MakeAvailable(GLFM ImGui yaml-cpp fmtlib sol lua)
 
 project(mud_project C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+
+# strongly encouraged to enable this globally to avoid conflicts between
+# -Wpedantic being enabled and -std=c++20 and -std=gnu++20 for example
+# when compiling with PCH enabled
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
 
 add_subdirectory(src)
