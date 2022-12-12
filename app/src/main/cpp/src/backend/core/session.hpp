@@ -33,21 +33,29 @@ namespace kms {
 		static void readMud(session_t& session) {
 			CCharVector data(4096, 0);
 			size_t index = 0;
-			for(;;) {
+			for(;;)
+			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(30));
-				if (!session.m_socket.getIsValid())			{ break; }
-				if (session.m_socket.checkForRead()) {
+				if (!session.m_socket.getIsValid())
+				{
+				    break;
+				}
+				if (session.m_socket.checkForRead())
+				{
 					auto rc = session.m_socket.recv(data, index);
-					if (rc > 0) {
+					if (rc > 0)
+					{
 						index += static_cast<size_t>(rc);
-					} else if (rc == 0) {
+					}
+					else if (rc == 0)
+					{
 						//connection closed??
-					} else {
+					}
+					else
+					{
 						fmt::print(stderr, "\r\n{}\r\n", "Connection Lost");
 						break;
 					}
-				
-				//} else {
 					if (index > 0) {
 						if (session.m_telnet.process(data, index, session.m_console, session.m_commands, session.m_bufferedWrite)) {
 							index = 0;
@@ -55,28 +63,42 @@ namespace kms {
 						}
 					}
 				}
-				//}
 			}
 			fmt::print(stderr, "read thread closed [{}]\n", session.m_console.getSessionName());
 			session.m_socket.close();
 		}
 
-		static void writeMud(session_t& session) {
-			for(;;) {
-				if (!session.m_socket.getIsValid())			{ break; }
-				if (session.m_socket.checkForWrite() == 0)	{ continue; }
+		static void writeMud(session_t& session)
+		{
+			for(;;)
+			{
+				if (!session.m_socket.getIsValid())
+				{
+				    break;
+				}
+				if (session.m_socket.checkForWrite() == 0)
+				{
+				    continue;
+				}
 
 				//dont care about CoW...
 				std::string sLine;
 
-				if (session.m_bufferedWrite.try_dequeue(sLine)) {
-					if (sLine.empty() == false) {
+				if (session.m_bufferedWrite.try_dequeue(sLine))
+				{
+					if (sLine.empty() == false)
+					{
 						unsigned char nTest = static_cast<unsigned char>(sLine[0]);
-						if (nTest == 255) {
-						} else {
+						if (nTest == 255)
+						{
+						}
+						else
+						{
 							sLine += "\r\n";
 						}
-					} else {
+					}
+					else
+					{
 						sLine += "\r\n";
 					}
 

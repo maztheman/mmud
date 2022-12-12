@@ -57,7 +57,7 @@ namespace kms {
 	class socket_t
 	{
 		//provided by the platform.hpp
-		kms_socket_t	m_socket;
+		std::atomic<kms_socket_t>	m_socket;
 	public:
 		socket_t()
 			: m_socket(KMS_INVALID_SOCKET)
@@ -82,7 +82,8 @@ namespace kms {
 			ioctlsocket(m_socket, FIONBIO, &val);
 		}
 
-		bool getIsValid() const {
+		bool getIsValid() const
+		{
 			return m_socket != KMS_INVALID_SOCKET;
 		}
 
@@ -119,23 +120,43 @@ namespace kms {
 			return getIsValid();
 		}
 
-		auto recv(CCharVector& data, size_t index = 0) -> auto {
+		auto recv(CCharVector& data, size_t index = 0) -> auto
+		{
+		    if (!getIsValid())
+		    {
+                return (long)KMS_SOCKET_ERROR;
+		    }
 			memset(&data[index], 0, data.size() - index);
 			return ::recv(m_socket, &data[index], data.size() - index, 0);
 		}
 
 		bool send(const std::string& buffer)
 		{
+		    if (!getIsValid())
+		    {
+                return false;
+		    }
+
 			return KMS_SOCKET_ERROR != ::send(m_socket, buffer.c_str(), buffer.size(), 0);
 		}
 
 		int send(const CCharVector& buffer)
 		{
+		    if (!getIsValid())
+		    {
+                return KMS_SOCKET_ERROR;
+		    }
+
 			return static_cast<int>(::send(m_socket, &buffer[0], buffer.size(), 0));
 		}
 
 		int checkForError()
 		{
+		    if (!getIsValid())
+		    {
+                return 0;
+		    }
+
 			fd_set hum;
 			TIMEVAL wait = {0, 0};
 			FD_ZERO(&hum);
@@ -146,21 +167,43 @@ namespace kms {
 
 		int checkForRead()
 		{
+		    if (!getIsValid())
+		    {
+                return 0;
+		    }
+
 			fd_set hum;
 			TIMEVAL wait = {0, 0};
 			FD_ZERO(&hum);
 			FD_SET(m_socket, &hum);
 			::select(32, &hum, NULL, NULL, &wait);
+
+		    if (!getIsValid())
+		    {
+                return 0;
+		    }
+
 			return FD_ISSET(m_socket, &hum);
 		}
 
 		int checkForWrite()
 		{
+			if (!getIsValid())
+		    {
+                return 0;
+		    }
+		
 			fd_set hum;
 			TIMEVAL wait = {0, 0};
 			FD_ZERO(&hum);
 			FD_SET(m_socket, &hum);
 			::select(32, NULL, &hum, NULL, &wait);
+
+		    if (!getIsValid())
+		    {
+                return 0;
+		    }
+
 			return FD_ISSET(m_socket, &hum);
 		}
 	};
